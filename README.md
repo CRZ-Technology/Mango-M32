@@ -1,9 +1,10 @@
 # Mango-M32
 STM32CubeIDE example projects on the Mango-M32/Mango-M32F2/Mango-M32F4 boards.
 
-Mango-M32F2 
+Mango-M32F2
+
 	- 1강_STM32CubeIDE_설치
-	- 2강_Flash_Write_방법
+ 	- 2강_Flash_Write_방법
 	- 3강_UART1_테스트
 	- 4강_UART3_테스트
 	- 5강_LED_테스트
