@@ -12,4 +12,5 @@ Mango-M32F2
 	- 7강_USB_DEVICE_VCP_테스트
 	- 8강_USB_HOST_MSC_테스트
 	- 9강_ETHERNET_테스트
+	- 10강_I2C_BMA280_테스트
 	
