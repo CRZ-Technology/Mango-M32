@@ -13,4 +13,9 @@ Mango-M32F2
 	- 8강_USB_HOST_MSC_테스트
 	- 9강_ETHERNET_테스트
 	- 10강_I2C_BMA280_테스트
+	- 11강_I2C_BH17_테스트
+	- 12강_I2C_LPS25_테스트
+	- 13강_I2C_L3GD20HTR_테스트
+	- 14강_I2C_HTU21_테스트
+	- 15강_CAN_테스트
 	
