@@ -73,7 +73,7 @@ void MX_LWIP_Init(void)
 /* USER CODE BEGIN IP_ADDRESSES */
 /* USER CODE END IP_ADDRESSES */
 
-  /* Initilialize the LwIP stack without RTOS */
+  /* Initialize the LwIP stack without RTOS */
   lwip_init();
 
   /* IP addresses initialization without DHCP (IPv4) */
@@ -87,21 +87,11 @@ void MX_LWIP_Init(void)
   /* Registers the default network interface */
   netif_set_default(&gnetif);
 
-  if (netif_is_link_up(&gnetif))
-  {
-    /* When the netif is fully configured this function must be called */
-    netif_set_up(&gnetif);
-  }
-  else
-  {
-    /* When the netif link is down this function must be called */
-    netif_set_down(&gnetif);
-  }
+  /* We must always bring the network interface up connection or not... */
+  netif_set_up(&gnetif);
 
   /* Set the link callback function, this function is called on change of link status*/
   netif_set_link_callback(&gnetif, ethernetif_update_config);
-
-  /* Create the Ethernet link handler thread */
 
 /* USER CODE BEGIN 3 */
 

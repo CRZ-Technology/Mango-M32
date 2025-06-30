@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;uart1_prj&apos; to &apos;ethernet_prj&apos;" description="Rename resource &apos;uart1_prj&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/uart1_prj" name="ethernet_prj" stamp="1751258446113" updateReferences="true"/>
+</session>

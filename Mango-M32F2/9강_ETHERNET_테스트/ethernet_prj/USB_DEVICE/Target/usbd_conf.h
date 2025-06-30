@@ -166,6 +166,5 @@
 #ifdef __cplusplus
 }
 #endif
-
 #endif /* __USBD_CONF__H__ */
 
