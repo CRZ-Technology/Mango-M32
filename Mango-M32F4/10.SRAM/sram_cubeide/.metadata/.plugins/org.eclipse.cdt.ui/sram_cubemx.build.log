@@ -1,0 +1,45 @@
+16:19:32 **** Incremental Build of configuration Debug for project sram_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'Buffercmp':
+../Core/Src/main.c:129:13: warning: implicit declaration of function 'printf' [-Wimplicit-function-declaration]
+  129 |             printf("Data Diff, pBuffer1: 0x%04X, pBuffer2: 0x%04X\r\n", * pBuffer1, * pBuffer2);
+      |             ^~~~~~
+../Core/Src/main.c:21:1: note: include '<stdio.h>' or provide a declaration of 'printf'
+   20 | #include "main.h"
+  +++ |+#include <stdio.h>
+   21 | 
+../Core/Src/main.c:129:13: warning: incompatible implicit declaration of built-in function 'printf' [-Wbuiltin-declaration-mismatch]
+  129 |             printf("Data Diff, pBuffer1: 0x%04X, pBuffer2: 0x%04X\r\n", * pBuffer1, * pBuffer2);
+      |             ^~~~~~
+../Core/Src/main.c:129:13: note: include '<stdio.h>' or provide a declaration of 'printf'
+../Core/Src/main.c:133:9: warning: incompatible implicit declaration of built-in function 'printf' [-Wbuiltin-declaration-mismatch]
+  133 |         printf("Count: %d, Data is same.\r\n", ++count);
+      |         ^~~~~~
+../Core/Src/main.c:133:9: note: include '<stdio.h>' or provide a declaration of 'printf'
+../Core/Src/main.c: In function 'SRAM_Test':
+../Core/Src/main.c:165:9: warning: incompatible implicit declaration of built-in function 'printf' [-Wbuiltin-declaration-mismatch]
+  165 |         printf("Test NOT ok.\r\n");
+      |         ^~~~~~
+../Core/Src/main.c:165:9: note: include '<stdio.h>' or provide a declaration of 'printf'
+../Core/Src/main.c:169:9: warning: incompatible implicit declaration of built-in function 'printf' [-Wbuiltin-declaration-mismatch]
+  169 |         printf("Test OK.\r\n");
+      |         ^~~~~~
+../Core/Src/main.c:169:9: note: include '<stdio.h>' or provide a declaration of 'printf'
+arm-none-eabi-gcc -o "sram_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\9.SRAM\sram_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="sram_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: sram_cubemx.elf
+ 
+arm-none-eabi-size  sram_cubemx.elf 
+arm-none-eabi-objdump -h -S sram_cubemx.elf  > "sram_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  14092	    104	   3096	  17292	   438c	sram_cubemx.elf
+arm-none-eabi-objcopy  -O binary sram_cubemx.elf  "sram_cubemx.bin"
+Finished building: default.size.stdout
+Finished building: sram_cubemx.list
+ 
+Finished building: sram_cubemx.bin
+ 
+ 
+
+16:19:34 Build Finished. 0 errors, 5 warnings. (took 2s.394ms)
+

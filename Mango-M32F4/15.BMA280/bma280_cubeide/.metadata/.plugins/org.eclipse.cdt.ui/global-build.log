@@ -1,0 +1,156 @@
+13:45:11 **** Incremental Build of configuration Debug for project bma280_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "bma280_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\15.BMA280\bma280_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="bma280_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: bma280_cubemx.elf
+ 
+arm-none-eabi-size  bma280_cubemx.elf 
+arm-none-eabi-objdump -h -S bma280_cubemx.elf  > "bma280_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  17296	    104	   2064	  19464	   4c08	bma280_cubemx.elf
+arm-none-eabi-objcopy  -O binary bma280_cubemx.elf  "bma280_cubemx.bin"
+Finished building: default.size.stdout
+ 
+Finished building: bma280_cubemx.list
+Finished building: bma280_cubemx.bin
+ 
+ 
+13:45:29 **** Incremental Build of configuration Debug for project bma280_cubemx ****
+make -j8 all 
+arm-none-eabi-size  bma280_cubemx.elf 
+   text	   data	    bss	    dec	    hex	filename
+  17296	    104	   2064	  19464	   4c08	bma280_cubemx.elf
+Finished building: default.size.stdout
+ 
+13:52:45 **** Incremental Build of configuration Debug for project bma280_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "bma280_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\15.BMA280\bma280_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="bma280_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: bma280_cubemx.elf
+ 
+arm-none-eabi-size  bma280_cubemx.elf 
+arm-none-eabi-objdump -h -S bma280_cubemx.elf  > "bma280_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  27512	    468	   2060	  30040	   7558	bma280_cubemx.elf
+arm-none-eabi-objcopy  -O binary bma280_cubemx.elf  "bma280_cubemx.bin"
+Finished building: default.size.stdout
+ 
+Finished building: bma280_cubemx.list
+Finished building: bma280_cubemx.bin
+ 
+ 
+13:54:14 **** Incremental Build of configuration Debug for project bma280_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "bma280_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\15.BMA280\bma280_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="bma280_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: bma280_cubemx.elf
+ 
+arm-none-eabi-size  bma280_cubemx.elf 
+arm-none-eabi-objdump -h -S bma280_cubemx.elf  > "bma280_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  27568	    468	   2060	  30096	   7590	bma280_cubemx.elf
+arm-none-eabi-objcopy  -O binary bma280_cubemx.elf  "bma280_cubemx.bin"
+Finished building: default.size.stdout
+ 
+Finished building: bma280_cubemx.list
+Finished building: bma280_cubemx.bin
+ 
+ 
+13:55:54 **** Incremental Build of configuration Debug for project bma280_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "bma280_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\15.BMA280\bma280_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="bma280_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: bma280_cubemx.elf
+ 
+arm-none-eabi-size  bma280_cubemx.elf 
+arm-none-eabi-objdump -h -S bma280_cubemx.elf  > "bma280_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  27616	    468	   2060	  30144	   75c0	bma280_cubemx.elf
+arm-none-eabi-objcopy  -O binary bma280_cubemx.elf  "bma280_cubemx.bin"
+Finished building: default.size.stdout
+ 
+Finished building: bma280_cubemx.list
+Finished building: bma280_cubemx.bin
+ 
+ 
+13:59:40 **** Incremental Build of configuration Debug for project bma280_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'Read_3_Axis_BMA280_Data':
+../Core/Src/main.c:127:5: error: invalid operands to binary * (have 'int' and 'int16_t *' {aka 'short int *'})
+  126 |     printf("xl=%x,xm=%x,yl=%x,ym=%x,zl=%x,zm=%x\r\n", Buffer_Rx[0], Buffer_Rx[1], Buffer_Rx[2], Buffer_Rx[3], Buffer_Rx[4], Buffer_Rx[5])
+      |     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |     |
+      |     int
+  127 |     * xData_p = ((((int16_t)(int8_t)Buffer_Rx[1]) << 8) | Buffer_Rx[0]) >> 6;
+      |     ^
+make: *** [Core/Src/subdir.mk:34: Core/Src/main.o] Error 1
+"make -j8 all" terminated with exit code 2. Build might be incomplete.
+13:59:46 **** Incremental Build of configuration Debug for project bma280_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "bma280_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\15.BMA280\bma280_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="bma280_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: bma280_cubemx.elf
+ 
+arm-none-eabi-size  bma280_cubemx.elf 
+arm-none-eabi-objdump -h -S bma280_cubemx.elf  > "bma280_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  27696	    468	   2060	  30224	   7610	bma280_cubemx.elf
+arm-none-eabi-objcopy  -O binary bma280_cubemx.elf  "bma280_cubemx.bin"
+Finished building: default.size.stdout
+Finished building: bma280_cubemx.list
+ 
+Finished building: bma280_cubemx.bin
+ 
+ 
+14:04:01 **** Incremental Build of configuration Debug for project bma280_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "bma280_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\15.BMA280\bma280_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="bma280_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: bma280_cubemx.elf
+ 
+arm-none-eabi-size  bma280_cubemx.elf 
+arm-none-eabi-objdump -h -S bma280_cubemx.elf  > "bma280_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  27712	    468	   2060	  30240	   7620	bma280_cubemx.elf
+arm-none-eabi-objcopy  -O binary bma280_cubemx.elf  "bma280_cubemx.bin"
+Finished building: default.size.stdout
+ 
+Finished building: bma280_cubemx.list
+Finished building: bma280_cubemx.bin
+ 
+ 
+14:26:06 **** Incremental Build of configuration Debug for project bma280_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "bma280_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\15.BMA280\bma280_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="bma280_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: bma280_cubemx.elf
+ 
+arm-none-eabi-size  bma280_cubemx.elf 
+arm-none-eabi-objdump -h -S bma280_cubemx.elf  > "bma280_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  27744	    468	   2060	  30272	   7640	bma280_cubemx.elf
+arm-none-eabi-objcopy  -O binary bma280_cubemx.elf  "bma280_cubemx.bin"
+Finished building: default.size.stdout
+Finished building: bma280_cubemx.list
+ 
+Finished building: bma280_cubemx.bin
+ 
+ 
+14:27:50 **** Incremental Build of configuration Debug for project bma280_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "bma280_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\15.BMA280\bma280_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="bma280_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: bma280_cubemx.elf
+ 
+arm-none-eabi-size  bma280_cubemx.elf 
+arm-none-eabi-objdump -h -S bma280_cubemx.elf  > "bma280_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  27664	    468	   2060	  30192	   75f0	bma280_cubemx.elf
+arm-none-eabi-objcopy  -O binary bma280_cubemx.elf  "bma280_cubemx.bin"
+Finished building: default.size.stdout
+ 
+Finished building: bma280_cubemx.list
+Finished building: bma280_cubemx.bin
+ 
+ 

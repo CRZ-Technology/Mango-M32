@@ -1,0 +1,28 @@
+00:04:19 **** Incremental Build of configuration Debug for project ethernet_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../LWIP/App -I../LWIP/Target -I../Core/Inc -I../Middlewares/Third_Party/LwIP/src/include -I../Middlewares/Third_Party/LwIP/system -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/BSP/Components/dp83848 -I../Middlewares/Third_Party/LwIP/src/include/netif/ppp -I../Middlewares/Third_Party/LwIP/src/apps/http -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Middlewares/Third_Party/LwIP/src/include/lwip -I../Middlewares/Third_Party/LwIP/src/include/lwip/apps -I../Middlewares/Third_Party/LwIP/src/include/lwip/priv -I../Middlewares/Third_Party/LwIP/src/include/lwip/prot -I../Middlewares/Third_Party/LwIP/src/include/netif -I../Middlewares/Third_Party/LwIP/src/include/compat/posix -I../Middlewares/Third_Party/LwIP/src/include/compat/posix/arpa -I../Middlewares/Third_Party/LwIP/src/include/compat/posix/net -I../Middlewares/Third_Party/LwIP/src/include/compat/posix/sys -I../Middlewares/Third_Party/LwIP/src/include/compat/stdc -I../Middlewares/Third_Party/LwIP/system/arch -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+../Core/Src/main.c: In function 'LEDS_CGI_Handler':
+../Core/Src/main.c:170:11: warning: implicit declaration of function 'strcmp' [-Wimplicit-function-declaration]
+  170 |       if (strcmp(pcParam[i] , "led")==0)
+      |           ^~~~~~
+../Core/Src/main.c:27:1: note: include '<string.h>' or provide a declaration of 'strcmp'
+   26 | #include "lwip/prot/dhcp.h"
+  +++ |+#include <string.h>
+   27 | #include "lwip/netif.h"
+arm-none-eabi-gcc -o "ethernet_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\10.Ethernet\ethernet_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="ethernet_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: ethernet_cubemx.elf
+ 
+arm-none-eabi-size  ethernet_cubemx.elf 
+arm-none-eabi-objdump -h -S ethernet_cubemx.elf  > "ethernet_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+ 149032	    148	  38836	 188016	  2de70	ethernet_cubemx.elf
+arm-none-eabi-objcopy  -O binary ethernet_cubemx.elf  "ethernet_cubemx.bin"
+Finished building: default.size.stdout
+ 
+Finished building: ethernet_cubemx.list
+Finished building: ethernet_cubemx.bin
+ 
+ 
+
+00:04:24 Build Finished. 0 errors, 1 warnings. (took 4s.605ms)
+

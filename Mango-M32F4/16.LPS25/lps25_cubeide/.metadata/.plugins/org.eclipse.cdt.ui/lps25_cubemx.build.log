@@ -1,0 +1,10 @@
+14:51:52 **** Incremental Build of configuration Debug for project lps25_cubemx ****
+make -j8 all 
+arm-none-eabi-size  lps25_cubemx.elf 
+   text	   data	    bss	    dec	    hex	filename
+  28124	    468	   2164	  30756	   7824	lps25_cubemx.elf
+Finished building: default.size.stdout
+ 
+
+14:51:53 Build Finished. 0 errors, 0 warnings. (took 1s.30ms)
+

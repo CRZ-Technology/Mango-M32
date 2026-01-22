@@ -1,0 +1,10 @@
+09:41:12 **** Incremental Build of configuration Debug for project l3gd20htr_cubemx ****
+make -j8 all 
+arm-none-eabi-size  l3gd20htr_cubemx.elf 
+   text	   data	    bss	    dec	    hex	filename
+  27640	    468	   2060	  30168	   75d8	l3gd20htr_cubemx.elf
+Finished building: default.size.stdout
+ 
+
+09:41:13 Build Finished. 0 errors, 0 warnings. (took 1s.184ms)
+

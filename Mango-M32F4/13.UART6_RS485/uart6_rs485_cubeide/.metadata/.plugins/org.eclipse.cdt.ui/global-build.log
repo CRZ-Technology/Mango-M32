@@ -1,0 +1,26 @@
+19:31:07 **** Incremental Build of configuration Debug for project uart6_rs485_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_hal_msp.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_hal_msp.d" -MT"Core/Src/stm32f4xx_hal_msp.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_hal_msp.o"
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_it.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_it.d" -MT"Core/Src/stm32f4xx_it.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_it.o"
+arm-none-eabi-gcc -o "uart6_rs485_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\13.UART6_RS485\uart6_rs485_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="uart6_rs485_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: uart6_rs485_cubemx.elf
+ 
+arm-none-eabi-size  uart6_rs485_cubemx.elf 
+arm-none-eabi-objdump -h -S uart6_rs485_cubemx.elf  > "uart6_rs485_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  16716	    104	   2120	  18940	   49fc	uart6_rs485_cubemx.elf
+arm-none-eabi-objcopy  -O binary uart6_rs485_cubemx.elf  "uart6_rs485_cubemx.bin"
+Finished building: default.size.stdout
+ 
+Finished building: uart6_rs485_cubemx.bin
+Finished building: uart6_rs485_cubemx.list
+ 
+ 
+19:34:38 **** Incremental Build of configuration Debug for project uart6_rs485_cubemx ****
+make -j8 all 
+arm-none-eabi-size  uart6_rs485_cubemx.elf 
+   text	   data	    bss	    dec	    hex	filename
+  16716	    104	   2120	  18940	   49fc	uart6_rs485_cubemx.elf
+Finished building: default.size.stdout
+ 

@@ -1,0 +1,20 @@
+16:29:21 **** Incremental Build of configuration Debug for project htu21_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "htu21_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\17.HTU21\htu21_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="htu21_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: htu21_cubemx.elf
+ 
+arm-none-eabi-size  htu21_cubemx.elf 
+arm-none-eabi-objdump -h -S htu21_cubemx.elf  > "htu21_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  27576	    468	   2060	  30104	   7598	htu21_cubemx.elf
+arm-none-eabi-objcopy  -O binary htu21_cubemx.elf  "htu21_cubemx.bin"
+Finished building: default.size.stdout
+ 
+Finished building: htu21_cubemx.list
+Finished building: htu21_cubemx.bin
+ 
+ 
+
+16:29:25 Build Finished. 0 errors, 0 warnings. (took 4s.298ms)
+

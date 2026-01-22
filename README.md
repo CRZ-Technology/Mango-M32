@@ -1,5 +1,5 @@
 # Mango-M32
-STM32CubeIDE example projects on the Mango-M32F2 boards.
+STM32CubeIDE example projects on the Mango-M32F2 / Mango-M32F4 boards.
 
 Mango-M32F2
 
@@ -19,3 +19,31 @@ Mango-M32F2
 	- 14강_I2C_HTU21_테스트
 	- 15강_CAN_테스트
 	
+Mango-M32F4
+
+	- 1.Cortex-M3 특징
+ 	- 2.Mango-M32F4 하드웨어 설명
+	- 3.환경구축(STM32CubeIDE 2.0)
+	- 4.1LED On Off(Register Access)
+	- 4.2LED On Off(HAL API)
+	- 4.3UART & HelloWorld printf
+	- 5.1Clock Control
+	- 5.2Key Interrupt
+	- 6.USB DEVICE
+	- 7.USB HOST
+	- 8.Ethernet
+	- 9.SD Card
+	- 10.SRAM
+	- 11.CAN
+	- 12.UART6_RS232
+	- 13.UART6_RS485
+	- 14.BH17
+	- 15.BMA280
+	- 16.LPS25
+	- 17.HTU21
+	- 18.L3GD20HTR
+	- 19.BitBand
+	- 20.Mode_Privilege
+	- 21.Interrupt_Priority
+	- 22.Power_Control
+	- 23.통신프로토콜

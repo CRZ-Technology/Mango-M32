@@ -1,0 +1,17 @@
+13:25:02 **** Incremental Build of configuration Debug for project usb_device_project ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/stm32f4xx_it.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../USB_DEVICE/App -I../USB_DEVICE/Target -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Middlewares/ST/STM32_USB_Device_Library/Core/Inc -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/ST/STM32_USB_Device_Library/Class/CustomHID/Inc -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/stm32f4xx_it.d" -MT"Core/Src/stm32f4xx_it.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/stm32f4xx_it.o"
+arm-none-eabi-gcc -o "usb_device_project.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\7.USB DEVICE\usb_device_project\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="usb_device_project.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: usb_device_project.elf
+ 
+arm-none-eabi-size  usb_device_project.elf 
+arm-none-eabi-objdump -h -S usb_device_project.elf  > "usb_device_project.list"
+   text	   data	    bss	    dec	    hex	filename
+  29324	    396	   4180	  33900	   846c	usb_device_project.elf
+arm-none-eabi-objcopy  -O binary usb_device_project.elf  "usb_device_project.bin"
+Finished building: default.size.stdout
+ 
+Finished building: usb_device_project.list
+Finished building: usb_device_project.bin
+ 
+ 

@@ -1,0 +1,14 @@
+10:47:20 **** Incremental Build of configuration Debug for project sdcard_cubemx ****
+make -j8 all 
+arm-none-eabi-size  sdcard_cubemx.elf 
+   text	   data	    bss	    dec	    hex	filename
+  39032	    104	   7488	  46624	   b620	sdcard_cubemx.elf
+Finished building: default.size.stdout
+ 
+10:47:24 **** Incremental Build of configuration Debug for project sdcard_cubemx ****
+make -j8 all 
+arm-none-eabi-size  sdcard_cubemx.elf 
+   text	   data	    bss	    dec	    hex	filename
+  39032	    104	   7488	  46624	   b620	sdcard_cubemx.elf
+Finished building: default.size.stdout
+ 

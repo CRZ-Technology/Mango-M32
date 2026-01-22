@@ -1,0 +1,19 @@
+09:44:46 **** Incremental Build of configuration Debug for project can_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc -o "can_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\11.CAN\can_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="can_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: can_cubemx.elf
+ 
+arm-none-eabi-size  can_cubemx.elf 
+arm-none-eabi-objdump -h -S can_cubemx.elf  > "can_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  17376	    104	   2096	  19576	   4c78	can_cubemx.elf
+arm-none-eabi-objcopy  -O binary can_cubemx.elf  "can_cubemx.bin"
+Finished building: default.size.stdout
+ 
+Finished building: can_cubemx.list
+Finished building: can_cubemx.bin
+ 
+ 
+
+09:44:52 Build Finished. 0 errors, 0 warnings. (took 5s.397ms)
+
