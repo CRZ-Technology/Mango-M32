@@ -1,0 +1,426 @@
+/**
+ * @file    bno055.c
+ * @brief   BNO055 9-axis IMU driver for STM32F4 HAL (I2C)
+ *
+ * 데이터시트: BST-BNO055-DS000-18 Rev 1.8 (October 2021)
+ *
+ * 주요 타이밍 사양 (DS Table 3-6):
+ *   CONFIG → Any Operation mode : 7ms 대기
+ *   Any Operation → CONFIG mode : 19ms 대기
+ *   POR / Reset 후 부팅         : 650ms 대기 (내부 클럭 기준)
+ *
+ * I2C 사양 (DS Table 4-8):
+ *   최대 클럭 : 400 kHz (Fast Mode)
+ *   쓰기 간격 : 일반 모드 최소 2µs, Suspend 모드 450µs
+ *   클럭 스트레칭 사용
+ */
+
+#include "bno055.h"
+#include <string.h>
+
+/* ─────────────────────────────────────────────
+ * 내부 I2C 헬퍼
+ * ─────────────────────────────────────────────*/
+#define I2C_TIMEOUT_MS  10
+
+static BNO055_Status_t bno_write_reg(BNO055_Handle_t *hbno,
+                                     uint8_t reg, uint8_t val)
+{
+    uint8_t buf[2] = {reg, val};
+    if (HAL_I2C_Master_Transmit(hbno->hi2c, hbno->dev_addr,
+                                 buf, 2, I2C_TIMEOUT_MS) != HAL_OK)
+        return BNO055_ERR_I2C;
+    HAL_Delay(2);  /* DS: tIDLE_wacc_nm ≥ 2µs; HAL_Delay(1) = ~1ms로 충분 */
+    return BNO055_OK;
+}
+
+static BNO055_Status_t bno_read_regs(BNO055_Handle_t *hbno,
+                                      uint8_t reg,
+                                      uint8_t *buf, uint16_t len)
+{
+    /* BNO055 I2C 읽기: Write(reg addr) → Repeated Start → Read(data)
+       HAL_I2C_Mem_Read 가 이 시퀀스를 자동 처리 */
+    if (HAL_I2C_Mem_Read(hbno->hi2c, hbno->dev_addr,
+                          reg, I2C_MEMADD_SIZE_8BIT,
+                          buf, len, I2C_TIMEOUT_MS) != HAL_OK)
+        return BNO055_ERR_I2C;
+    return BNO055_OK;
+}
+
+static BNO055_Status_t bno_read_reg(BNO055_Handle_t *hbno,
+                                     uint8_t reg, uint8_t *val)
+{
+    return bno_read_regs(hbno, reg, val, 1);
+}
+
+/* ─────────────────────────────────────────────
+ * 동작 모드 전환 (내부용)
+ * DS Table 3-6 전환 대기 시간 적용
+ * ─────────────────────────────────────────────*/
+static BNO055_Status_t bno_set_mode_internal(BNO055_Handle_t *hbno,
+                                              BNO055_OpMode_t mode)
+{
+    BNO055_Status_t ret;
+    ret = bno_write_reg(hbno, BNO055_OPR_MODE_REG, (uint8_t)mode);
+    if (ret != BNO055_OK) return ret;
+
+    if (mode == BNO055_MODE_CONFIG)
+        HAL_Delay(20);  /* Any → CONFIG: 19ms */
+    else
+        HAL_Delay(10);  /* CONFIG → Any: 7ms  */
+
+    hbno->cur_mode = mode;
+    return BNO055_OK;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_Init
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_Init(BNO055_Handle_t *hbno,
+                             I2C_HandleTypeDef *hi2c,
+                             uint8_t i2c_addr,
+                             bool use_ext_crystal)
+{
+    BNO055_Status_t ret;
+    uint8_t chip_id;
+
+    hbno->hi2c            = hi2c;
+    hbno->dev_addr        = i2c_addr;
+    hbno->cur_mode        = BNO055_MODE_CONFIG;
+    hbno->use_ext_crystal = use_ext_crystal;
+
+    /* 전원 인가 후 부팅 완료 대기 (DS 3.10: POR 처리 시간) */
+    HAL_Delay(700);
+
+    /* ── CHIP_ID 확인 (0xA0 고정) ── */
+    ret = bno_read_reg(hbno, BNO055_CHIP_ID_REG, &chip_id);
+    if (ret != BNO055_OK) return ret;
+    if (chip_id != 0xA0)  return BNO055_ERR_CHIP_ID;
+
+    /* ── 소프트웨어 리셋 ── */
+    ret = BNO055_Reset(hbno);
+    if (ret != BNO055_OK) return ret;
+
+    /* ── CONFIG 모드 진입 확인 ── */
+    ret = bno_set_mode_internal(hbno, BNO055_MODE_CONFIG);
+    if (ret != BNO055_OK) return ret;
+
+    /* ── PAGE 0 선택 ── */
+    ret = bno_write_reg(hbno, BNO055_PAGE_ID_REG, 0x00);
+    if (ret != BNO055_OK) return ret;
+
+    /* ── 전원 모드: Normal ── */
+    ret = bno_write_reg(hbno, BNO055_PWR_MODE_REG, BNO055_POWER_NORMAL);
+    if (ret != BNO055_OK) return ret;
+
+    /* ── 단위 설정: m/s², dps, degree, °C, Windows 좌표계 ──
+       UNIT_SEL[7]=0: Windows  [4]=0: °C
+       [2]=0: degree  [1]=0: dps  [0]=0: m/s²               */
+    ret = bno_write_reg(hbno, BNO055_UNIT_SEL_REG, 0x00);
+    if (ret != BNO055_OK) return ret;
+
+    /* ── 클럭 소스 선택 ──
+       SYS_TRIGGER[7]=0: 내부 클럭 (±3% 편차)
+       SYS_TRIGGER[7]=1: 외부 크리스탈 (권장)
+       DS 4.3.61, 5.5.2 참고                                 */
+    uint8_t sys_trigger = use_ext_crystal ? 0x80 : 0x00;
+    ret = bno_write_reg(hbno, BNO055_SYS_TRIGGER_REG, sys_trigger);
+    if (ret != BNO055_OK) return ret;
+    HAL_Delay(10);
+
+    /* ── NDOF 모드 진입 (9축 Sensor Fusion) ── */
+    ret = bno_set_mode_internal(hbno, BNO055_MODE_NDOF);
+    if (ret != BNO055_OK) return ret;
+
+    return BNO055_OK;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_Reset
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_Reset(BNO055_Handle_t *hbno)
+{
+    /* SYS_TRIGGER[5] = RST_SYS: 소프트웨어 리셋 */
+    bno_write_reg(hbno, BNO055_SYS_TRIGGER_REG, 0x20);
+    HAL_Delay(700);  /* 부팅 완료 대기 */
+    hbno->cur_mode = BNO055_MODE_CONFIG;
+    return BNO055_OK;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_SetMode
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_SetMode(BNO055_Handle_t *hbno, BNO055_OpMode_t mode)
+{
+    BNO055_Status_t ret;
+
+    if (hbno->cur_mode == mode) return BNO055_OK;
+
+    /* Fusion/Non-Fusion 모드 변경 시 반드시 CONFIG를 거침 */
+    if (hbno->cur_mode != BNO055_MODE_CONFIG) {
+        ret = bno_set_mode_internal(hbno, BNO055_MODE_CONFIG);
+        if (ret != BNO055_OK) return ret;
+    }
+
+    if (mode != BNO055_MODE_CONFIG) {
+        ret = bno_set_mode_internal(hbno, mode);
+        if (ret != BNO055_OK) return ret;
+    }
+
+    return BNO055_OK;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_GetEuler
+ * 레지스터 0x1A~0x1F (Heading/Roll/Pitch)
+ * 단위: raw / 16.0 = degree
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_GetEuler(BNO055_Handle_t *hbno, BNO055_Euler_t *euler)
+{
+    uint8_t buf[6];
+    BNO055_Status_t ret = bno_read_regs(hbno, BNO055_EUL_DATA_X_LSB, buf, 6);
+    if (ret != BNO055_OK) return ret;
+
+    int16_t raw_h = (int16_t)((buf[1] << 8) | buf[0]);
+    int16_t raw_r = (int16_t)((buf[3] << 8) | buf[2]);
+    int16_t raw_p = (int16_t)((buf[5] << 8) | buf[4]);
+
+    euler->heading = raw_h / 16.0f;  /* 0 ~ 360° */
+    euler->roll    = raw_r / 16.0f;  /* -90 ~ +90° */
+    euler->pitch   = raw_p / 16.0f;  /* -180 ~ +180° */
+
+    return BNO055_OK;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_GetQuaternion
+ * 레지스터 0x20~0x27 (W, X, Y, Z)
+ * 단위: raw / 16384.0  (2^14 = 1.0)
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_GetQuaternion(BNO055_Handle_t *hbno, BNO055_Quaternion_t *quat)
+{
+    uint8_t buf[8];
+    BNO055_Status_t ret = bno_read_regs(hbno, BNO055_QUA_DATA_W_LSB, buf, 8);
+    if (ret != BNO055_OK) return ret;
+
+    int16_t raw_w = (int16_t)((buf[1] << 8) | buf[0]);
+    int16_t raw_x = (int16_t)((buf[3] << 8) | buf[2]);
+    int16_t raw_y = (int16_t)((buf[5] << 8) | buf[4]);
+    int16_t raw_z = (int16_t)((buf[7] << 8) | buf[6]);
+
+    const float scale = 1.0f / (float)(1 << 14);
+    quat->w = raw_w * scale;
+    quat->x = raw_x * scale;
+    quat->y = raw_y * scale;
+    quat->z = raw_z * scale;
+
+    return BNO055_OK;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_GetAccel
+ * 레지스터 0x08~0x0D (Acc X, Y, Z)
+ * 단위: raw / 100.0 = m/s²  (UNIT_SEL[0]=0 시)
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_GetAccel(BNO055_Handle_t *hbno, BNO055_Vec3_t *accel)
+{
+    uint8_t buf[6];
+    BNO055_Status_t ret = bno_read_regs(hbno, BNO055_ACC_DATA_X_LSB, buf, 6);
+    if (ret != BNO055_OK) return ret;
+
+    int16_t raw_x = (int16_t)((buf[1] << 8) | buf[0]);
+    int16_t raw_y = (int16_t)((buf[3] << 8) | buf[2]);
+    int16_t raw_z = (int16_t)((buf[5] << 8) | buf[4]);
+
+    accel->x = raw_x / 100.0f;  /* m/s² */
+    accel->y = raw_y / 100.0f;
+    accel->z = raw_z / 100.0f;
+
+    return BNO055_OK;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_GetGyro
+ * 레지스터 0x14~0x19 (Gyro X, Y, Z)
+ * 단위: raw / 16.0 = dps  (UNIT_SEL[1]=0 시)
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_GetGyro(BNO055_Handle_t *hbno, BNO055_Vec3_t *gyro)
+{
+    uint8_t buf[6];
+    BNO055_Status_t ret = bno_read_regs(hbno, BNO055_GYR_DATA_X_LSB, buf, 6);
+    if (ret != BNO055_OK) return ret;
+
+    int16_t raw_x = (int16_t)((buf[1] << 8) | buf[0]);
+    int16_t raw_y = (int16_t)((buf[3] << 8) | buf[2]);
+    int16_t raw_z = (int16_t)((buf[5] << 8) | buf[4]);
+
+    gyro->x = raw_x / 16.0f;  /* dps */
+    gyro->y = raw_y / 16.0f;
+    gyro->z = raw_z / 16.0f;
+
+    return BNO055_OK;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_GetLinearAccel
+ * 중력 성분이 제거된 선형 가속도 (0x28~0x2D)
+ * 단위: m/s²
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_GetLinearAccel(BNO055_Handle_t *hbno, BNO055_Vec3_t *lia)
+{
+    uint8_t buf[6];
+    BNO055_Status_t ret = bno_read_regs(hbno, BNO055_LIA_DATA_X_LSB, buf, 6);
+    if (ret != BNO055_OK) return ret;
+
+    int16_t raw_x = (int16_t)((buf[1] << 8) | buf[0]);
+    int16_t raw_y = (int16_t)((buf[3] << 8) | buf[2]);
+    int16_t raw_z = (int16_t)((buf[5] << 8) | buf[4]);
+
+    lia->x = raw_x / 100.0f;
+    lia->y = raw_y / 100.0f;
+    lia->z = raw_z / 100.0f;
+
+    return BNO055_OK;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_GetTemperature
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_GetTemperature(BNO055_Handle_t *hbno, int8_t *temp_c)
+{
+    uint8_t raw;
+    BNO055_Status_t ret = bno_read_reg(hbno, BNO055_TEMP_REG, &raw);
+    if (ret != BNO055_OK) return ret;
+    *temp_c = (int8_t)raw;  /* 단위: °C (UNIT_SEL[4]=0 시) */
+    return BNO055_OK;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_GetCalibStatus
+ * CALIB_STAT[7:6]=sys, [5:4]=gyro, [3:2]=accel, [1:0]=mag
+ * 0=미보정, 3=완전보정
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_GetCalibStatus(BNO055_Handle_t *hbno,
+                                       BNO055_CalibStatus_t *cal)
+{
+    uint8_t raw;
+    BNO055_Status_t ret = bno_read_reg(hbno, BNO055_CALIB_STAT_REG, &raw);
+    if (ret != BNO055_OK) return ret;
+
+    cal->sys   = (raw >> 6) & 0x03;
+    cal->gyro  = (raw >> 4) & 0x03;
+    cal->accel = (raw >> 2) & 0x03;
+    cal->mag   = (raw >> 0) & 0x03;
+
+    return BNO055_OK;
+}
+
+bool BNO055_IsFullyCalibrated(BNO055_Handle_t *hbno)
+{
+    BNO055_CalibStatus_t cal;
+    if (BNO055_GetCalibStatus(hbno, &cal) != BNO055_OK) return false;
+    return (cal.sys == 3 && cal.gyro == 3 && cal.accel == 3 && cal.mag == 3);
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_GetCalibData
+ * 캘리브레이션 오프셋 읽기 (EEPROM 저장용)
+ * ※ CONFIG 모드에서만 읽기 가능
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_GetCalibData(BNO055_Handle_t *hbno,
+                                     BNO055_CalibData_t *data)
+{
+    BNO055_Status_t ret;
+    uint8_t buf[22];
+    BNO055_OpMode_t saved_mode = hbno->cur_mode;
+
+    /* CONFIG 모드로 전환 */
+    ret = BNO055_SetMode(hbno, BNO055_MODE_CONFIG);
+    if (ret != BNO055_OK) return ret;
+
+    /* 0x55부터 22바이트 연속 읽기 */
+    ret = bno_read_regs(hbno, BNO055_ACC_OFFSET_X_LSB, buf, 22);
+    if (ret != BNO055_OK) goto restore;
+
+    data->accel_offset[0] = (int16_t)((buf[1]  << 8) | buf[0]);
+    data->accel_offset[1] = (int16_t)((buf[3]  << 8) | buf[2]);
+    data->accel_offset[2] = (int16_t)((buf[5]  << 8) | buf[4]);
+    data->mag_offset[0]   = (int16_t)((buf[7]  << 8) | buf[6]);
+    data->mag_offset[1]   = (int16_t)((buf[9]  << 8) | buf[8]);
+    data->mag_offset[2]   = (int16_t)((buf[11] << 8) | buf[10]);
+    data->gyro_offset[0]  = (int16_t)((buf[13] << 8) | buf[12]);
+    data->gyro_offset[1]  = (int16_t)((buf[15] << 8) | buf[14]);
+    data->gyro_offset[2]  = (int16_t)((buf[17] << 8) | buf[16]);
+    data->accel_radius    = (int16_t)((buf[19] << 8) | buf[18]);
+    data->mag_radius      = (int16_t)((buf[21] << 8) | buf[20]);
+
+restore:
+    BNO055_SetMode(hbno, saved_mode);
+    return ret;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_SetCalibData
+ * 저장된 캘리브레이션 오프셋 복원
+ * ※ CONFIG 모드에서만 쓰기 가능
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_SetCalibData(BNO055_Handle_t *hbno,
+                                     const BNO055_CalibData_t *data)
+{
+    BNO055_Status_t ret;
+    BNO055_OpMode_t saved_mode = hbno->cur_mode;
+
+    ret = BNO055_SetMode(hbno, BNO055_MODE_CONFIG);
+    if (ret != BNO055_OK) return ret;
+
+    /* ACC offset */
+    bno_write_reg(hbno, 0x55, (uint8_t)(data->accel_offset[0] & 0xFF));
+    bno_write_reg(hbno, 0x56, (uint8_t)(data->accel_offset[0] >> 8));
+    bno_write_reg(hbno, 0x57, (uint8_t)(data->accel_offset[1] & 0xFF));
+    bno_write_reg(hbno, 0x58, (uint8_t)(data->accel_offset[1] >> 8));
+    bno_write_reg(hbno, 0x59, (uint8_t)(data->accel_offset[2] & 0xFF));
+    bno_write_reg(hbno, 0x5A, (uint8_t)(data->accel_offset[2] >> 8));
+
+    /* MAG offset */
+    bno_write_reg(hbno, 0x5B, (uint8_t)(data->mag_offset[0] & 0xFF));
+    bno_write_reg(hbno, 0x5C, (uint8_t)(data->mag_offset[0] >> 8));
+    bno_write_reg(hbno, 0x5D, (uint8_t)(data->mag_offset[1] & 0xFF));
+    bno_write_reg(hbno, 0x5E, (uint8_t)(data->mag_offset[1] >> 8));
+    bno_write_reg(hbno, 0x5F, (uint8_t)(data->mag_offset[2] & 0xFF));
+    bno_write_reg(hbno, 0x60, (uint8_t)(data->mag_offset[2] >> 8));
+
+    /* GYR offset */
+    bno_write_reg(hbno, 0x61, (uint8_t)(data->gyro_offset[0] & 0xFF));
+    bno_write_reg(hbno, 0x62, (uint8_t)(data->gyro_offset[0] >> 8));
+    bno_write_reg(hbno, 0x63, (uint8_t)(data->gyro_offset[1] & 0xFF));
+    bno_write_reg(hbno, 0x64, (uint8_t)(data->gyro_offset[1] >> 8));
+    bno_write_reg(hbno, 0x65, (uint8_t)(data->gyro_offset[2] & 0xFF));
+    bno_write_reg(hbno, 0x66, (uint8_t)(data->gyro_offset[2] >> 8));
+
+    /* Radius */
+    bno_write_reg(hbno, 0x67, (uint8_t)(data->accel_radius & 0xFF));
+    bno_write_reg(hbno, 0x68, (uint8_t)(data->accel_radius >> 8));
+    bno_write_reg(hbno, 0x69, (uint8_t)(data->mag_radius & 0xFF));
+    bno_write_reg(hbno, 0x6A, (uint8_t)(data->mag_radius >> 8));
+
+    ret = BNO055_SetMode(hbno, saved_mode);
+    return ret;
+}
+
+/* ─────────────────────────────────────────────
+ * BNO055_GetSysStatus
+ * SYS_STATUS(0x39), SYS_ERR(0x3A), ST_RESULT(0x36)
+ * ─────────────────────────────────────────────*/
+BNO055_Status_t BNO055_GetSysStatus(BNO055_Handle_t *hbno,
+                                     uint8_t *sys_status,
+                                     uint8_t *sys_error,
+                                     uint8_t *st_result)
+{
+    BNO055_Status_t ret;
+    ret = bno_read_reg(hbno, BNO055_SYS_STATUS_REG, sys_status);
+    if (ret != BNO055_OK) return ret;
+    ret = bno_read_reg(hbno, BNO055_SYS_ERR_REG, sys_error);
+    if (ret != BNO055_OK) return ret;
+    ret = bno_read_reg(hbno, BNO055_ST_RESULT_REG, st_result);
+    return ret;
+}

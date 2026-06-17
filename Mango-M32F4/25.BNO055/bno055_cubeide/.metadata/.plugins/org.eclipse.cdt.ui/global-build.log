@@ -1,0 +1,21 @@
+16:40:10 **** Incremental Build of configuration Debug for project bno055_cubemx ****
+make -j8 all 
+arm-none-eabi-gcc "../Core/Src/main_example.c" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F407xx -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main_example.d" -MT"Core/Src/main_example.o" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "Core/Src/main_example.o"
+../Core/Src/main_example.c: In function 'app_main':
+../Core/Src/main_example.c:64:26: warning: unused variable 'calib' [-Wunused-variable]
+   64 |     BNO055_CalibStatus_t calib;
+      |                          ^~~~~
+arm-none-eabi-gcc -o "bno055_cubemx.elf" @"objects.list"   -mcpu=cortex-m4 -T"D:\project\2026\Mango-M32F4 교육\PPT\25.BNO055\bno055_cubemx\STM32F407ZETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="bno055_cubemx.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: bno055_cubemx.elf
+ 
+arm-none-eabi-size  bno055_cubemx.elf 
+arm-none-eabi-objdump -h -S bno055_cubemx.elf  > "bno055_cubemx.list"
+   text	   data	    bss	    dec	    hex	filename
+  30152	    468	   2060	  32680	   7fa8	bno055_cubemx.elf
+arm-none-eabi-objcopy  -O binary bno055_cubemx.elf  "bno055_cubemx.bin"
+Finished building: default.size.stdout
+ 
+Finished building: bno055_cubemx.list
+Finished building: bno055_cubemx.bin
+ 
+ 

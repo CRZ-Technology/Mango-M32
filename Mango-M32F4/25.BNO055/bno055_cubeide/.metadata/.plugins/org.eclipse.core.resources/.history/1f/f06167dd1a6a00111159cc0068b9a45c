@@ -1,0 +1,176 @@
+/**
+ * @file    main_example.c
+ * @brief   STM32F4 + BNO055 사용 예제
+ *
+ * ─────────────────────────────────────────────
+ * 하드웨어 연결 (STM32F4 Discovery 기준)
+ * ─────────────────────────────────────────────
+ *  BNO055 핀     STM32F4 핀      비고
+ *  ──────────    ────────────    ────────────────────────────────
+ *  VDD           3.3V            3.3V 전용 (5V 불가)
+ *  VDDIO         3.3V
+ *  GND           GND
+ *  SDA           PB7 (I2C1_SDA)  4.7kΩ Pull-up to 3.3V
+ *  SCL           PB6 (I2C1_SCL)  4.7kΩ Pull-up to 3.3V
+ *  PS0           GND             I2C 모드 선택 (PS1=0, PS0=0)
+ *  PS1           GND
+ *  COM3          GND             I2C 주소 = 0x28 (Low)
+ *  nRESET        3.3V (10kΩ)     Pull-up, 외부 제어 불필요
+ *  nBOOT_LOAD    3.3V (10kΩ)     Pull-up 필수 (Application 모드)
+ *  INT           (미연결 가능)    인터럽트 불필요 시 NC
+ *  XIN32/XOUT32  (미연결)        크리스탈 미사용 시 NC
+ *  ──────────    ────────────    ────────────────────────────────
+ *
+ * ─────────────────────────────────────────────
+ * STM32CubeMX I2C1 설정
+ * ─────────────────────────────────────────────
+ *  - Mode: I2C
+ *  - Speed Mode: Fast Mode (400 kHz)  ← BNO055 최대 400kHz 지원
+ *  - Clock No Stretch Mode: Disabled  ← 클럭 스트레칭 허용 필수
+ *  - Primary Address Length: 7bit
+ *  - Dual Address Acknowledged: Disabled
+ *
+ * ─────────────────────────────────────────────
+ * UART2 출력 설정 (디버그용)
+ * ─────────────────────────────────────────────
+ *  PA2 → TX, Baud 115200, 8N1
+ *  printf 리디렉션: syscalls.c의 _write() 함수 구현 필요
+ */
+
+#include "main.h"
+#include "bno055.h"
+#include <stdio.h>
+
+/* ── 외부 핸들 (STM32CubeMX 생성) ── */
+extern I2C_HandleTypeDef  hi2c1;
+extern UART_HandleTypeDef huart1;
+
+/* printf → UART1 리디렉션 */
+int _write(int file, char *ptr, int len)
+{
+    HAL_UART_Transmit(&huart1, (uint8_t *)ptr, (uint16_t)len, 100);
+    return len;
+}
+
+/* ─────────────────────────────────────────────
+ * 애플리케이션 진입점
+ * ─────────────────────────────────────────────*/
+void app_main(void)
+{
+    BNO055_Handle_t     bno;
+    BNO055_Euler_t      euler;
+    BNO055_Quaternion_t quat;
+    BNO055_Vec3_t       accel, gyro, lia;
+    BNO055_CalibStatus_t calib;
+    int8_t              temp;
+    BNO055_Status_t     ret;
+
+    printf("\r\n===== BNO055 STM32F4 I2C Example =====\r\n");
+
+    /* ── 초기화 ──────────────────────────────
+       COM3=High → I2C 주소 0x29
+       크리스탈 미장착 → false (내부 오실레이터)
+       크리스탈 장착  → true
+    ─────────────────────────────────────────*/
+    ret = BNO055_Init(&bno, &hi2c1, BNO055_I2C_ADDR_LOW, false);
+    if (ret != BNO055_OK) {
+        printf("[ERR] BNO055 init failed: %d\r\n", ret);
+        while (1);  /* 초기화 실패 시 정지 */
+    }
+    printf("[OK] BNO055 initialized (NDOF mode)\r\n");
+
+    /* ── 시스템 상태 확인 ── */
+    uint8_t sys_st, sys_err, st_res;
+    BNO055_GetSysStatus(&bno, &sys_st, &sys_err, &st_res);
+    printf("SYS_STATUS=0x%02X  SYS_ERR=0x%02X  ST_RESULT=0x%02X\r\n",
+           sys_st, sys_err, st_res);
+    /*
+     * SYS_STATUS 값 의미:
+     *  0x01 = System Init, 0x02 = External Peripheral Init,
+     *  0x03 = Initializing Peripherals, 0x04 = System Running with no errors,
+     *  0x05 = System Running with fusion algo, 0x06 = System Error
+     *
+     * ST_RESULT (Self-test):
+     *  bit[0]=MCU, bit[1]=GYR, bit[2]=MAG, bit[3]=ACC  모두 1이어야 정상
+     */
+
+#if 1
+    /* ── 캘리브레이션 대기 ────────────────────
+       NDOF 모드에서는 센서를 움직이며 자동 캘리브레이션
+       모든 값이 3이 될 때까지 대기 (운용 환경에 따라 수십 초 소요)
+       실제 제품에서는 저장된 캘리브 데이터 복원 권장
+    ─────────────────────────────────────────*/
+    printf("Waiting for calibration (move sensor)...\r\n");
+    uint32_t tick = HAL_GetTick();
+    while (!BNO055_IsFullyCalibrated(&bno)) {
+        BNO055_GetCalibStatus(&bno, &calib);
+        /* 2초마다 상태 출력 */
+        if (HAL_GetTick() - tick >= 2000) {
+            tick = HAL_GetTick();
+            printf("  Calib: SYS=%d  GYR=%d  ACC=%d  MAG=%d\r\n",
+                   calib.sys, calib.gyro, calib.accel, calib.mag);
+        }
+        HAL_Delay(100);
+    }
+    printf("[OK] Fully calibrated!\r\n");
+
+    /* ── 캘리브레이션 데이터 읽기 (EEPROM/Flash 저장 권장) ── */
+    BNO055_CalibData_t calib_data;
+    BNO055_GetCalibData(&bno, &calib_data);
+    printf("Accel offset: X=%d Y=%d Z=%d (radius=%d)\r\n",
+           calib_data.accel_offset[0], calib_data.accel_offset[1],
+           calib_data.accel_offset[2], calib_data.accel_radius);
+    printf("Gyro  offset: X=%d Y=%d Z=%d\r\n",
+           calib_data.gyro_offset[0], calib_data.gyro_offset[1],
+           calib_data.gyro_offset[2]);
+    printf("Mag   offset: X=%d Y=%d Z=%d (radius=%d)\r\n",
+           calib_data.mag_offset[0], calib_data.mag_offset[1],
+           calib_data.mag_offset[2], calib_data.mag_radius);
+#endif
+
+    /* ── 메인 루프 ── */
+    printf("\r\n--- Sensor Data ---\r\n");
+    while (1) {
+
+        /* 오일러각 (Fusion 출력) */
+        if (BNO055_GetEuler(&bno, &euler) == BNO055_OK) {
+            printf("Euler  | Heading=%6.2f  Roll=%6.2f  Pitch=%6.2f [deg]\r\n",
+                   (double)euler.heading,
+                   (double)euler.roll,
+                   (double)euler.pitch);
+        }
+
+        /* 쿼터니언 (Fusion 출력) */
+        if (BNO055_GetQuaternion(&bno, &quat) == BNO055_OK) {
+            printf("Quat   | W=%6.4f  X=%6.4f  Y=%6.4f  Z=%6.4f\r\n",
+                   (double)quat.w, (double)quat.x,
+                   (double)quat.y, (double)quat.z);
+        }
+
+        /* 가속도 (중력 포함) */
+        if (BNO055_GetAccel(&bno, &accel) == BNO055_OK) {
+            printf("Accel  | X=%6.2f  Y=%6.2f  Z=%6.2f [m/s²]\r\n",
+                   (double)accel.x, (double)accel.y, (double)accel.z);
+        }
+
+        /* 자이로 */
+        if (BNO055_GetGyro(&bno, &gyro) == BNO055_OK) {
+            printf("Gyro   | X=%7.2f  Y=%7.2f  Z=%7.2f [dps]\r\n",
+                   (double)gyro.x, (double)gyro.y, (double)gyro.z);
+        }
+
+        /* 선형가속도 (중력 제거, Fusion 출력) */
+        if (BNO055_GetLinearAccel(&bno, &lia) == BNO055_OK) {
+            printf("LinAcc | X=%6.2f  Y=%6.2f  Z=%6.2f [m/s²]\r\n",
+                   (double)lia.x, (double)lia.y, (double)lia.z);
+        }
+
+        /* 온도 */
+        if (BNO055_GetTemperature(&bno, &temp) == BNO055_OK) {
+            printf("Temp   | %d [°C]\r\n", temp);
+        }
+
+        printf("──────────────────────────────────────────────\r\n");
+        HAL_Delay(200);  /* 5 Hz 출력 */
+    }
+}
