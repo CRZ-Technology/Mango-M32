@@ -47,3 +47,5 @@ Mango-M32F4
 	- 21.Interrupt_Priority
 	- 22.Power_Control
 	- 23.통신프로토콜
+	- 24.SHT20
+	- 25.BNO005
